@@ -1,7 +1,7 @@
-import { DB_URL } from "$env/static/private";
+import { DATABASE_URL } from "$env/static/private";
 import postgres from "postgres";
 
-const sql = postgres(DB_URL);
+const sql = postgres(DATABASE_URL);
 
 async function migrate() {
   await sql`CREATE TABLE IF NOT EXISTS users (
