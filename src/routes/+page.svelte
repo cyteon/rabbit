@@ -111,10 +111,12 @@
     <div class="flex flex-row h-full">
         <Sidebar />
 
-        <div class="flex flex-col bg-ctp-surface0 w-full m-5 rounded-xl">
+        <div
+            class="flex flex-col bg-ctp-surface0 w-full m-5 rounded-xl gap-3 p-3"
+        >
             {#each json.posts as post}
                 <div
-                    class="flex flex-col bg-ctp-surface1 rounded-md m-3 p-3 transition-all duration-300 hover:scale-[100.5%] hover:cursor-pointer overflow-hidden"
+                    class="flex flex-col bg-ctp-surface1 rounded-md p-3 transition-all duration-300 hover:scale-[100.5%] hover:cursor-pointer overflow-hidden"
                     on:click={() => {
                         window.location.href = `/r/${post.subrabbit_name}/${post.id_rand}`;
                     }}
@@ -148,7 +150,7 @@
                     <h1 class="text-2xl text-ctp-text">{post.title}</h1>
                     <div>
                         <p
-                            class="text-base text-ctp-text max-h-24 overflow-hidden whitespace-pre-wrap prose prose-sm"
+                            class="text-base text-ctp-text max-h-24 overflow-hidden prose prose-sm"
                         >
                             {@html post.content}
                         </p>

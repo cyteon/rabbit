@@ -1,3 +1,67 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.prose,
+.prose p,
+.prose ul,
+.prose ol,
+.prose li,
+.prose blockquote,
+.prose pre,
+.prose figure,
+.prose hr,
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+}
+
+.prose p + p,
+.prose ul + p,
+.prose ol + p,
+.prose p + ul,
+.prose p + ol {
+    margin-top: 0.5em;
+}
+
+.prose ul,
+.prose ol {
+    padding-left: 1.25em;
+}
+
+.prose ul {
+    list-style: disc;
+}
+.prose ol {
+    list-style: decimal;
+}
+
+.prose pre {
+    padding: 0.5em 0.75em;
+    border-radius: 0.375rem;
+}
+
+.prose pre > code {
+    font-size: 0.75em !important;
+
+    padding: 0;
+}
+
+.prose code {
+    padding: 0.25em 0.5em;
+    border-radius: 0.375rem;
+}
+
+.prose code::before,
+.prose code::after {
+    content: "" !important;
+}
+
+.prose {
+    max-width: none;
+}

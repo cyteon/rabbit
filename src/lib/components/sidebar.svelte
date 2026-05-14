@@ -168,7 +168,6 @@
                     <input
                         class="mt-1 text-ctp-text w-full rounded-md p-2 bg-ctp-mantle"
                         type="text"
-                        onkeypress="return event.charCode != 32"
                         placeholder="Community Name"
                         bind:value={communityName}
                     />

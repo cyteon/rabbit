@@ -126,24 +126,26 @@
         <div class="flex flex-row h-full">
             <Sidebar />
 
-            <div class="flex flex-col bg-ctp-surface0 rounded-xl w-full m-5">
+            <div
+                class="flex flex-col bg-ctp-surface0 rounded-xl w-full m-5 p-3 gap-3"
+            >
                 <div class="flex flex-row">
-                    <p
-                        class="justify-start mr-auto mt-auto text-xl ml-3 text-ctp-text p-2"
-                    >
+                    <p class="justify-start my-auto text-xl text-ctp-text">
                         r/{slug}
                     </p>
+
                     <button
-                        class="justify-start ml-auto mr-3 mt-3 text-gray-800 bg-ctp-blue p-2 px-4 rounded-md"
+                        class="justify-start ml-auto text-gray-800 bg-ctp-blue p-2 px-4 rounded-md"
                         on:click={() => {
                             window.location.href = `/r/${slug}/new`;
                         }}
                         >+ Create Post
                     </button>
                 </div>
+
                 {#each json.posts as post}
                     <div
-                        class="flex flex-col bg-ctp-surface1 rounded-md m-3 p-3 transition-all duration-300 hover:scale-[100.5%] hover:cursor-pointer overflow-hidden"
+                        class="flex flex-col bg-ctp-surface1 rounded-md p-3 transition-all duration-300 hover:scale-[100.5%] hover:cursor-pointer overflow-hidden"
                         on:click={() => {
                             window.location.href = `/r/${slug}/${post.id_rand}`;
                         }}

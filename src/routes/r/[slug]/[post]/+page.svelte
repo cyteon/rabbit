@@ -161,7 +161,7 @@
             <Sidebar />
 
             <div
-                class="flex flex-col bg-ctp-surface0 w-full m-5 p-3 rounded-xl"
+                class="flex flex-col bg-ctp-surface0 w-full m-5 p-3 rounded-xl overflow-y-auto"
             >
                 <div class="flex flex-col bg-ctp-surface1 rounded-md mb-3 p-3">
                     <div class="flex flex-row">
@@ -185,12 +185,13 @@
                             >
                         </div>
                     </div>
+
                     <h1 class="text-2xl text-ctp-text">{post.title}</h1>
-                    <divb
-                        class=" text-ctp-text break-words whitespace-pre-wrap prose"
-                    >
+
+                    <div class="text-ctp-text break-words prose">
                         {@html post.content}
-                    </divb>
+                    </div>
+
                     <div class="flex flex-row mt-3">
                         <div
                             class="text-ctp-text bg-ctp-surface0 w-fit py-2 px-3 flex flex-row rounded-full"
