@@ -1,4 +1,6 @@
-import { sql } from "$lib/db.server";
+import { db } from "$lib/server/db/index";
+import { posts as postsSchema } from "$lib/server/db/schema";
+import { desc, sql } from "drizzle-orm";
 
 export async function GET({ url }) {
   let slug = url.pathname.split("/").pop();
@@ -7,16 +9,29 @@ export async function GET({ url }) {
 
   switch (slug) {
     case "top":
-      posts = await sql`select * from posts order by votes desc`;
+      posts = await db
+        .select()
+        .from(postsSchema)
+        .orderBy(desc(postsSchema.votes));
       break;
     case "new":
-      posts = await sql`select * from posts order by created_at desc`;
+      posts = await db
+        .select()
+        .from(postsSchema)
+        .orderBy(desc(postsSchema.created_at));
       break;
     case "old":
-      posts = await sql`select * from posts order by created_at asc`;
+      posts = await db
+        .select()
+        .from(postsSchema)
+        .orderBy(postsSchema.created_at);
       break;
     case "random":
-      posts = await sql`select * from posts order by random()`;
+      posts = await db
+        .select()
+        .from(postsSchema)
+        .orderBy(sql`RANDOM()`);
+      break;
   }
 
   return Response.json(

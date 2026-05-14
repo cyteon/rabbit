@@ -1,16 +1,28 @@
-import { sql } from "$lib/db.server";
+import { db } from "$lib/server/db/index";
+import {
+  users as usersTable,
+  posts as postsTable,
+  subrabbits as subrabbitsTable,
+} from "$lib/server/db/schema";
+import { desc, eq } from "drizzle-orm";
 
 export async function GET({ url }) {
   let slug = url.pathname.split("/").pop();
 
-  var result = await sql`select * from subrabbits where name = ${slug}`;
+  let result = await db
+    .select()
+    .from(subrabbitsTable)
+    .where(eq(subrabbitsTable.name, slug!));
 
   if (result.length === 0) {
     return Response.json({ message: "404 Not Found" }, { status: 404 });
   }
 
-  var posts =
-    await sql`select * from posts where subrabbit = ${result[0].id} order by votes desc`;
+  let posts = await db
+    .select()
+    .from(postsTable)
+    .where(eq(postsTable.subrabbit, result[0].id))
+    .orderBy(desc(postsTable.votes));
 
   return Response.json(
     {
@@ -24,8 +36,10 @@ export async function GET({ url }) {
 export async function POST({ request }) {
   var body = await request.json();
 
-  var result =
-    await sql`select * from subrabbits where name = ${body.subrabbit}`;
+  let result = await db
+    .select()
+    .from(subrabbitsTable)
+    .where(eq(subrabbitsTable.name, body.subrabbit));
 
   if (result.length === 0) {
     return Response.json({ message: "Subrabbit not found" }, { status: 404 });
@@ -33,14 +47,27 @@ export async function POST({ request }) {
 
   let id = Math.random().toString(36).substring(4);
 
-  let user = await sql`select * from users where clerk_id = ${body.author}`;
+  let user = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.clerk_id, body.author));
 
   if (user.length === 0) {
-    user =
-      await sql`insert into users (clerk_id) values (${body.author}) returning *`;
+    user = await db
+      .insert(usersTable)
+      .values({ clerk_id: body.author })
+      .returning();
   }
 
-  await sql`insert into posts (id_rand, title, content, subrabbit, subrabbit_name, author, author_clerk_id) values (${id}, ${body.title}, ${body.content}, ${result[0].id}, ${body.subrabbit}, ${user[0].id}, ${body.author})`;
+  await db.insert(postsTable).values({
+    id_rand: id,
+    title: body.title,
+    content: body.content,
+    subrabbit: result[0].id,
+    subrabbit_name: body.subrabbit,
+    author: user[0].id,
+    author_clerk_id: body.author,
+  });
 
   return Response.json(
     {

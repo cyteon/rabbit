@@ -1,7 +1,12 @@
-import { sql } from "$lib/db.server";
+import { db } from "$lib/server/db/index";
+import { subrabbits } from "$lib/server/db/schema";
+import { desc } from "drizzle-orm";
 
 export async function GET({}) {
-  var result = await sql`select * from subrabbits order by created_at desc`;
+  let result = await db
+    .select()
+    .from(subrabbits)
+    .orderBy(desc(subrabbits.created_at));
 
   return Response.json(
     {

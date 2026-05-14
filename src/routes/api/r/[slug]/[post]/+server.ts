@@ -1,7 +1,14 @@
 import { createClerkClient } from "@clerk/backend";
 import { CLERK_SECRET_KEY } from "$env/static/private";
 import { PUBLIC_CLERK_PUBLISHABLE_KEY } from "$env/static/public";
-import { sql } from "$lib/db.server";
+import { db } from "$lib/server/db/index";
+import {
+  users as usersTable,
+  posts as postsTable,
+  comments as commentsTable,
+  subrabbits as subrabbitsTable,
+} from "$lib/server/db/schema";
+import { and, desc, eq } from "drizzle-orm";
 
 const clerkClient = createClerkClient({
   secretKey: CLERK_SECRET_KEY,
@@ -10,23 +17,36 @@ const clerkClient = createClerkClient({
 
 export async function GET({ url, request }) {
   let slug = url.pathname.split("/")[3];
-  let post = url.pathname.split("/")[4];
+  let postId = url.pathname.split("/")[4];
 
-  var subrabbit = await sql`select * from subrabbits where name = ${slug}`;
+  var subrabbit = await db
+    .select()
+    .from(subrabbitsTable)
+    .where(eq(subrabbitsTable.name, slug));
 
   if (subrabbit.length === 0) {
     return Response.json({ message: "404 Not Found" }, { status: 404 });
   }
 
-  var result =
-    await sql`select * from posts where id_rand = ${post} and subrabbit = ${subrabbit[0].id}`;
+  let result = await db
+    .select()
+    .from(postsTable)
+    .where(
+      and(
+        eq(postsTable.id_rand, postId),
+        eq(postsTable.subrabbit, subrabbit[0].id),
+      ),
+    );
 
   if (result.length === 0) {
     return Response.json({ message: "404 Not Found" }, { status: 404 });
   }
 
-  var comments =
-    await sql`select * from comments where post = ${result[0].id} order by created_at desc`;
+  let comments = await db
+    .select()
+    .from(commentsTable)
+    .where(eq(commentsTable.post, result[0].id))
+    .orderBy(desc(commentsTable.created_at));
 
   return Response.json(
     {
@@ -61,24 +81,36 @@ export async function POST({ url, request }) {
 
   let id = Math.random().toString(36).substring(4);
 
-  let users = await sql`select * from users where clerk_id = ${body.clerk_id}`;
+  let foundUsers = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.clerk_id, body.clerk_id));
   let user;
 
-  if (users.length === 0) {
-    user =
-      await sql`insert into users (id) values (${body.user_id}) returning *`;
+  if (foundUsers.length === 0) {
+    user = await db
+      .insert(usersTable)
+      .values({ clerk_id: body.clerk_id })
+      .returning();
   } else {
-    user = users[0];
+    user = foundUsers[0];
   }
 
-  await sql`insert into comments (id_rand, post, author, author_clerk_id, content) values (${id}, ${body.post}, ${user.id}, ${body.clerk_id}, ${body.content})`;
-
-  let comment = await sql`select * from comments where id_rand = ${id}`;
+  const insertedComment = await db
+    .insert(commentsTable)
+    .values({
+      id_rand: id,
+      post: body.post,
+      author: user.id,
+      author_clerk_id: body.clerk_id,
+      content: body.content,
+    })
+    .returning();
 
   return Response.json(
     {
       message: "Created",
-      comment: comment[0],
+      comment: insertedComment[0],
     },
     { status: 201 },
   );

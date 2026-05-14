@@ -1,14 +1,15 @@
 import { createClerkClient } from "@clerk/backend";
 import { CLERK_SECRET_KEY } from "$env/static/private";
-import { PUBLIC_CLERK_PUBLISHABLE_KEY } from "$env/static/public";
-import { sql } from "$lib/db.server";
+import { db } from "$lib/server/db/index";
+import { users as usersTable } from "$lib/server/db/schema";
+import { eq } from "drizzle-orm";
 
 const clerkClient = createClerkClient({
   secretKey: CLERK_SECRET_KEY,
 });
 
 export async function GET({ url, request, locals }) {
-  let slug = url.pathname.split("/").pop();
+  let slug = url.pathname.split("/").pop()!;
 
   if (slug == "self") {
     if (!locals.session) {
@@ -20,12 +21,19 @@ export async function GET({ url, request, locals }) {
 
     let user = await clerkClient.users.getUser(locals.session.userId);
 
-    let data = await sql`select * from users where clerk_id = ${user.id}`;
+    let data = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.clerk_id, user.id));
 
     if (data.length === 0) {
-      data =
-        await sql`insert into users (clerk_id) values (${user.id}) returning *`;
+      data = await db
+        .insert(usersTable)
+        .values({ clerk_id: user.id })
+        .returning();
     }
+
+    data[0].votes = data[0].votes ? JSON.parse(data[0].votes) : {};
 
     return Response.json(
       {
@@ -47,11 +55,16 @@ export async function GET({ url, request, locals }) {
         return Response.json({ message: "User not found" }, { status: 404 });
       }
 
-      let result = await sql`select * from users where clerk_id = ${user.id}`;
+      let result = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.clerk_id, user.id));
 
       if (result.length === 0) {
-        result =
-          await sql`insert into users (clerk_id) values (${user.id}) returning *`;
+        result = await db
+          .insert(usersTable)
+          .values({ clerk_id: user.id })
+          .returning();
       }
 
       return Response.json(
@@ -71,7 +84,10 @@ export async function GET({ url, request, locals }) {
     }
   }
 
-  let data = await sql`select * from users where id = ${parseInt(slug)}`;
+  let data = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, parseInt(slug)));
 
   if (data.length === 0) {
     return Response.json({ message: "User not found" }, { status: 404 });

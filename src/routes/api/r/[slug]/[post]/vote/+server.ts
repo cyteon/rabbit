@@ -1,7 +1,12 @@
 import { createClerkClient } from "@clerk/backend";
 import { CLERK_SECRET_KEY } from "$env/static/private";
 import { PUBLIC_CLERK_PUBLISHABLE_KEY } from "$env/static/public";
-import { sql } from "$lib/db.server";
+import { db } from "$lib/server/db/index";
+import {
+  users as usersTable,
+  posts as postsTable,
+} from "$lib/server/db/schema";
+import { and, eq } from "drizzle-orm";
 
 const clerkClient = createClerkClient({
   secretKey: CLERK_SECRET_KEY,
@@ -11,8 +16,10 @@ const clerkClient = createClerkClient({
 export async function POST({ url, request }) {
   let slug = url.pathname.split("/")[3];
 
+  let session;
+
   try {
-    var session = await clerkClient.authenticateRequest(request);
+    session = await clerkClient.authenticateRequest(request);
 
     if (!session.isSignedIn) {
       return Response.json({ message: "Unauthorized", status: 401 });
@@ -27,45 +34,69 @@ export async function POST({ url, request }) {
     });
   }
 
-  var body = await request.json();
+  const { userId } = session.toAuth();
+  const body = await request.json();
 
-  var users = await sql`select * from users where id = ${body.user_id}`;
-  var user;
+  let foundUsers = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.clerk_id, userId!));
+  let user;
 
-  if (users.length === 0) {
-    user = await sql`insert into users (id, votes) values (${body.user_id}, {}) returning *`;
+  if (foundUsers.length === 0) {
+    const newUser = await db
+      .insert(usersTable)
+      .values({
+        clerk_id: userId!,
+        votes: "{}",
+      })
+      .returning();
+
+    user = newUser[0];
   } else {
-    user = users[0];
+    user = foundUsers[0];
   }
 
+  let foundPosts = await db
+    .select()
+    .from(postsTable)
+    .where(eq(postsTable.id_rand, slug));
 
-  var posts =
-    await sql`select * from posts where id = ${body.post} and subrabbit = ${body.subrabbit}`;
-
-  if (posts.length === 0) {
-    return Response.json({ message: "404 Not Found", status: 404 });
+  if (foundPosts.length === 0) {
+    return Response.json({ message: "Post not found", status: 404 });
   }
 
-  let post = posts[0];
+  let post = foundPosts[0];
+  let votes = JSON.parse(user.votes);
 
-  if (post.id in user.votes) {
-    let old_vote = user.votes[post.id];
-    user.votes[post.id] = body.vote;
+  if (post.id in votes) {
+    let old_vote = votes[post.id];
+    votes[post.id] = body.vote;
 
-    await sql`update users set votes = ${user.votes} where id = ${user.id}`;
-
-    await sql`update posts set votes = ${post.votes + body.vote + old_vote * -1} where id = ${post.id}`;
+    await db
+      .update(usersTable)
+      .set({ votes: JSON.stringify(votes) })
+      .where(eq(usersTable.id, user.id));
 
     post.votes = post.votes + body.vote + old_vote * -1;
+
+    await db
+      .update(postsTable)
+      .set({ votes: post.votes })
+      .where(eq(postsTable.id, post.id));
   } else {
-    await sql`update posts set votes = ${post.votes + body.vote} where id = ${post.id}`;
-
-    user.votes[post.id] = body.vote;
-
-    await sql`update users set votes = ${user.votes} where id = ${user.id}`;
-
     post.votes = post.votes + body.vote;
-  }
 
-  return Response.json({ post: post });
+    await db
+      .update(postsTable)
+      .set({ votes: post.votes })
+      .where(eq(postsTable.id, post.id));
+
+    votes[post.id] = body.vote;
+
+    await db
+      .update(usersTable)
+      .set({ votes: JSON.stringify(votes) })
+      .where(eq(usersTable.id, user.id));
+  }
 }
