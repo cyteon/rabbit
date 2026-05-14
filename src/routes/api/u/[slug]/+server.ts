@@ -13,10 +13,7 @@ export async function GET({ url, request, locals }) {
 
   if (slug == "self") {
     if (!locals.session) {
-      return Response.json(
-        { message: "Unauthorized", status: 401 },
-        { status: 401 },
-      );
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     let user = await clerkClient.users.getUser(locals.session.userId);

@@ -85,7 +85,7 @@
 
             if (response.status === 200) {
                 let json = await response.json();
-                post.votes = json.post.votes;
+                post.votes = json.votes;
 
                 selfData.data.votes[post.id] = vote;
             }

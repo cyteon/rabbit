@@ -14,7 +14,7 @@ const clerkClient = createClerkClient({
 });
 
 export async function POST({ url, request }) {
-  let slug = url.pathname.split("/")[3];
+  let slug = url.pathname.split("/")[4];
 
   let session;
 
@@ -22,16 +22,18 @@ export async function POST({ url, request }) {
     session = await clerkClient.authenticateRequest(request);
 
     if (!session.isSignedIn) {
-      return Response.json({ message: "Unauthorized", status: 401 });
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
   } catch (error) {
     console.log(error);
 
-    return Response.json({
-      message: "Internal Server Error",
-      error: error,
-      status: 500,
-    });
+    return Response.json(
+      {
+        message: "Internal Server Error",
+        error: error,
+      },
+      { status: 500 },
+    );
   }
 
   const { userId } = session.toAuth();
@@ -63,7 +65,7 @@ export async function POST({ url, request }) {
     .where(eq(postsTable.id_rand, slug));
 
   if (foundPosts.length === 0) {
-    return Response.json({ message: "Post not found", status: 404 });
+    return Response.json({ message: "Post not found" }, { status: 404 });
   }
 
   let post = foundPosts[0];
@@ -99,4 +101,9 @@ export async function POST({ url, request }) {
       .set({ votes: JSON.stringify(votes) })
       .where(eq(usersTable.id, user.id));
   }
+
+  return Response.json(
+    { message: "Vote recorded", votes: post.votes },
+    { status: 200 },
+  );
 }
