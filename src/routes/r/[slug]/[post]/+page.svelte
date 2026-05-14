@@ -140,15 +140,16 @@
     <meta property="og:description" content={post.content} />
     <meta
         property="og:url"
-        content={`https://rabbit.cyteon.tech/r/${slug}/${data.post}`}
+        content={`https://rabbit.cyteon.dev/r/${slug}/${data.post}`}
     />
     <meta property="og:type" content="website" />
 </head>
 
-<body class="bg-ctp-base h-[100vh]">
+<body class="bg-ctp-base h-screen flex flex-col">
     <Navbar />
+
     {#if notFound}
-        <div class="flex flex-col items-center justify-center min-h-[90%]">
+        <div class="flex flex-col items-center m-auto">
             <h1 class="text-5xl text-ctp-red">404 Not Found</h1>
             <a
                 class="text-xl text-ctp-text transition-all duration-300 hover:scale-105"
@@ -156,12 +157,13 @@
             >
         </div>
     {:else}
-        <div class="flex flex-grow-0">
+        <div class="flex h-full">
             <Sidebar />
+
             <div
-                class="flex flex-col bg-ctp-surface0 min-h-[90%] w-full m-5 rounded-xl"
+                class="flex flex-col bg-ctp-surface0 w-full m-5 p-3 rounded-xl"
             >
-                <div class="flex flex-col bg-ctp-surface1 rounded-md m-3 p-3">
+                <div class="flex flex-col bg-ctp-surface1 rounded-md mb-3 p-3">
                     <div class="flex flex-row">
                         <a href={`/u/${post.author}`} class="my-auto">
                             <img
@@ -245,9 +247,8 @@
                         </div>
                     </div>
                 </div>
-                <div
-                    class="mx-3 mb-3 p-2 flex flex-row bg-ctp-surface1 rounded-md"
-                >
+
+                <div class="mb-3 p-2 flex flex-row bg-ctp-surface1 rounded-md">
                     <input
                         placeholder="Add a comment"
                         class="rounded-md p-2 mr-2 w-full bg-ctp-mantle text-ctp-text"
@@ -260,9 +261,10 @@
                         Send
                     </button>
                 </div>
+
                 {#each json.comments as comment}
                     <div
-                        class="ml-3 mr-3 mb-3 p-2 flex flex-col bg-ctp-surface1 rounded-md text-ctp-text"
+                        class="mb-3 p-2 flex flex-col bg-ctp-surface1 rounded-md text-ctp-text"
                     >
                         <div class="flex flex-row">
                             <a href={`/u/${comment.author}`} class="my-auto">
@@ -272,13 +274,15 @@
                                     alt="avatar"
                                 />
                             </a>
+
                             <a
                                 href={`/u/${comment.author}`}
-                                class="text-base text-ctp-text mt-auto mb-auto"
+                                class="text-base text-ctp-text my-auto"
                                 >{comment.username}</a
                             >
                         </div>
-                        <p>{comment.content}</p>
+
+                        <p class="mt-2">{comment.content}</p>
                     </div>
                 {/each}
             </div>

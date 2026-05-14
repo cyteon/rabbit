@@ -92,22 +92,23 @@
 </script>
 
 <nav
-    class="bg-ctp-mantle border-ctp-surface0 border-r-[1px] w-fit h-screen text-ctp-text sticky top-0"
+    class="bg-ctp-mantle border-ctp-surface0 border-r-[1px] w-64 h-full text-ctp-text sticky top-0"
 >
     <div class="m-2">
         <a
-            class="flex flex-row w-full transition-all min-h-12 duration-300 hover:bg-black/15 p-1 rounded-lg"
+            class="flex flex-row w-full transition-all min-h-12 duration-300 hover:bg-black/15 p-1 px-2 rounded-lg"
             href="/"
         >
             <div class="h-8 mt-auto mb-auto"><MdHome /></div>
             <p class="text-base m-auto">Home</p>
         </a>
+
         <SignedIn>
-            <hr class="border-gray-600 m-1 border-t-[1px]" />
+            <hr class="border-ctp-surface0 m-1 border-t-[1px]" />
             <div class="accordion">
                 <div
                     role="aria-button"
-                    class="flex flex-row items-center justify-between cursor-pointer min-h-12 p-1 rounded-lg transition-all duration-300 hover:bg-black/15"
+                    class="flex flex-row items-center justify-between cursor-pointer min-h-12 p-1 px-2 rounded-lg transition-all duration-300 hover:bg-black/15"
                     on:click={() => (showAccordion = !showAccordion)}
                 >
                     <p>Communities</p>
@@ -122,19 +123,21 @@
                         on:click={togglePopup}
                     >
                         <div class="h-8"><MdAdd /></div>
-                        <p class="text-base m-auto">Create a community</p>
+                        <p class="text-base m-auto">Create</p>
                     </button>
                 </div>
             </div>
         </SignedIn>
-        <hr class="border-gray-600 m-1 border-t-[1px]" />
+
+        <hr class="border-ctp-surface0 m-1 border-t-[1px]" />
+
         <div class="accordion">
             <div
                 role="aria-button"
-                class="flex flex-row items-center justify-between cursor-pointer min-h-12 p-1 rounded-lg transition-all duration-300 hover:bg-black/15"
+                class="flex flex-row items-center justify-between cursor-pointer min-h-12 p-1 px-2 rounded-lg transition-all duration-300 hover:bg-black/15"
                 on:click={() => (showAccordion2 = !showAccordion2)}
             >
-                <p>Newest Communities</p>
+                <p>Recently Made</p>
                 <div class="h-6"><MdArrowDropDown /></div>
             </div>
             <div
@@ -180,7 +183,7 @@
                 </label>
 
                 <button
-                    class="mt-4 bg-ctp-blue text-gray-800 p-2 rounded w-full"
+                    class="mt-4 bg-ctp-blue text-ctp-mantle p-2 rounded w-full"
                     on:click={createCommunity}
                 >
                     Create
@@ -188,7 +191,7 @@
                 <p class="text-ctp-red text-sm">{communityError}</p>
 
                 <button
-                    class="mt-1 bg-ctp-blue text-gray-800 p-2 rounded w-full"
+                    class="mt-1 bg-ctp-blue text-ctp-mantle p-2 rounded w-full"
                     on:click={togglePopup}
                 >
                     Cancel

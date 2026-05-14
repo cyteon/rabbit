@@ -85,7 +85,7 @@ export async function POST({ url, request }) {
     .select()
     .from(usersTable)
     .where(eq(usersTable.clerk_id, body.clerk_id));
-  let user;
+  let user: any;
 
   if (foundUsers.length === 0) {
     user = await db

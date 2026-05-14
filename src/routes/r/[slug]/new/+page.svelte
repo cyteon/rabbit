@@ -59,9 +59,9 @@
     }
 </script>
 
-<body class="bg-ctp-base text-ctp-text">
+<body class="bg-ctp-base text-ctp-text h-screen flex flex-col">
     {#if notFound}
-        <div class="flex flex-col items-center justify-center min-h-[90%]">
+        <div class="flex flex-col items-center m-auto">
             <h1 class="text-5xl text-ctp-red">404 Not Found</h1>
             <a
                 class="text-xl text-ctp-text transition-all duration-300 hover:scale-105"
@@ -71,8 +71,10 @@
     {:else}
         <SignedIn>
             <Navbar />
-            <div class="w-full flex flex-row">
+
+            <div class="w-full flex flex-row h-full">
                 <Sidebar />
+
                 <div
                     class="flex flex-col bg-ctp-surface0 rounded-md w-full m-5 max-h-screen h-fit"
                 >
@@ -104,6 +106,7 @@
                 </div>
             </div>
         </SignedIn>
+
         <SignedOut>
             <div class="absolute w-full">
                 <Navbar />

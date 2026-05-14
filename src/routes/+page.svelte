@@ -105,16 +105,16 @@
     }
 </script>
 
-<body class="bg-ctp-base h-[100vh]">
+<body class="bg-ctp-base h-screen flex flex-col">
     <Navbar />
-    <div class="flex flex-row">
+
+    <div class="flex flex-row h-full">
         <Sidebar />
-        <div
-            class="flex flex-col bg-ctp-surface0 min-h-[90%] w-full m-5 rounded-xl"
-        >
+
+        <div class="flex flex-col bg-ctp-surface0 w-full m-5 rounded-xl">
             {#each json.posts as post}
                 <div
-                    class="flex flex-col bg-ctp-surface1 rounded-md m-3 p-3 transition-all duration-300 hover:scale-[100.5%] overflow-hidden"
+                    class="flex flex-col bg-ctp-surface1 rounded-md m-3 p-3 transition-all duration-300 hover:scale-[100.5%] hover:cursor-pointer overflow-hidden"
                     on:click={() => {
                         window.location.href = `/r/${post.subrabbit_name}/${post.id_rand}`;
                     }}

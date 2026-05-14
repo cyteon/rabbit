@@ -5,7 +5,7 @@
 </script>
 
 <nav class="bg-ctp-mantle border-ctp-surface0 border-b-[1px]">
-    <div class="p-3 flex flex-row">
+    <div class="p-3 py-2 flex flex-row">
         <a class="text-ctp-text text-xl mt-auto mb-auto font-bold" href="/"
             >Rabbit</a
         >
