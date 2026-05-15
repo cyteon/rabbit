@@ -23,7 +23,6 @@ export async function POST({ url, request }) {
     return Response.json(
       {
         message: "Internal Server Error",
-        error: error,
       },
       { status: 500 },
     );
@@ -31,6 +30,10 @@ export async function POST({ url, request }) {
 
   const { userId } = session.toAuth();
   const body = await request.json();
+
+  if (![-1, 0, 1].includes(body.vote)) {
+    return Response.json({ message: "Invalid vote" }, { status: 400 });
+  }
 
   let foundUsers = await db
     .select()

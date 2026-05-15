@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import Navbar from "$lib/components/navbar.svelte";
     import Sidebar from "$lib/components/sidebar.svelte";
 
@@ -32,7 +32,7 @@
             if (response.status == 200) {
                 json = await response.json();
             } else if (response.status == 404) {
-                console.log("Couldnt find posts");
+                console.log("Couldn't find posts");
             }
 
             for (let index = 0; index < json.posts.length; index++) {

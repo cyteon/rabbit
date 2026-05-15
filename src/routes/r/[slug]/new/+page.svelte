@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     /** @type {import('./$types').PageData} */
     export let data;
 
@@ -19,11 +19,7 @@
         try {
             let response = await fetch(`/api/r/${slug}`);
 
-            if (response.status == 200) {
-                let json = await response.json();
-
-                console.log(json);
-            } else {
+            if (!response.ok) {
                 notFound = true;
             }
         } catch (error) {
@@ -45,7 +41,7 @@
                 title: title,
                 subrabbit: slug,
                 content: content,
-                author: window.Clerk?.user.id,
+                author: window.Clerk?.user!.id,
             }),
         });
 

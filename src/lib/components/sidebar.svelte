@@ -53,9 +53,6 @@
     });
 
     async function createCommunity() {
-        console.log(communityName);
-        console.log(communityDescription);
-
         if (communityName == "") {
             communityError = "Community name cannot be empty";
             return;

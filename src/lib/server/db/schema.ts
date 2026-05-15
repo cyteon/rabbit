@@ -1,21 +1,9 @@
 import { pgTable, serial, integer, text, timestamp } from "drizzle-orm/pg-core";
 
-export const task = pgTable("task", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  priority: integer("priority").notNull().default(1),
-});
-
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   clerk_id: text("clerk_id").notNull().unique(),
   votes: text("votes").notNull().default("{}"),
-});
-
-export const sessions = pgTable("sessions", {
-  id: serial("id").primaryKey(),
-  user_id: integer("user_id").references(() => users.id),
-  token: text("token").notNull().unique(),
 });
 
 export const subrabbits = pgTable("subrabbits", {
