@@ -1,17 +1,10 @@
-import { createClerkClient } from "@clerk/backend";
-import { CLERK_SECRET_KEY } from "$env/static/private";
-import { PUBLIC_CLERK_PUBLISHABLE_KEY } from "$env/static/public";
+import clerk from "$lib/server/clerk";
 import { db } from "$lib/server/db/index";
 import {
   users as usersTable,
   posts as postsTable,
 } from "$lib/server/db/schema";
-import { and, eq } from "drizzle-orm";
-
-const clerkClient = createClerkClient({
-  secretKey: CLERK_SECRET_KEY,
-  publishableKey: PUBLIC_CLERK_PUBLISHABLE_KEY,
-});
+import { eq } from "drizzle-orm";
 
 export async function POST({ url, request }) {
   let slug = url.pathname.split("/")[4];
@@ -19,7 +12,7 @@ export async function POST({ url, request }) {
   let session;
 
   try {
-    session = await clerkClient.authenticateRequest(request);
+    session = await clerk.authenticateRequest(request);
 
     if (!session.isSignedIn) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });

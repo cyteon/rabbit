@@ -1,3 +1,4 @@
+import clerk from "$lib/server/clerk";
 import { db } from "$lib/server/db/index";
 import {
   users as usersTable,
@@ -7,6 +8,28 @@ import { eq } from "drizzle-orm";
 
 export async function POST({ request }) {
   let body = await request.json();
+
+  let session;
+
+  try {
+    session = await clerk.authenticateRequest(request);
+
+    if (!session.isSignedIn) {
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
+    }
+  } catch (error) {
+    console.log(error);
+
+    return Response.json(
+      {
+        message: "Internal Server Error",
+        error: error,
+      },
+      { status: 500 },
+    );
+  }
+
+  let clerk_id = session.toAuth().userId!;
 
   let result = await db
     .select()
@@ -25,12 +48,10 @@ export async function POST({ request }) {
   let user = await db
     .select()
     .from(usersTable)
-    .where(eq(usersTable.clerk_id, body.owner));
+    .where(eq(usersTable.clerk_id, clerk_id));
+
   if (user.length === 0) {
-    user = await db
-      .insert(usersTable)
-      .values({ clerk_id: body.owner })
-      .returning();
+    user = await db.insert(usersTable).values({ clerk_id }).returning();
   }
   const userId = user[0].id;
 
@@ -39,12 +60,6 @@ export async function POST({ request }) {
     description: body.description,
     owner: userId,
   });
-
-  var subrabbit = {
-    name: body.name,
-    description: body.description,
-    owner: body.owner,
-  };
 
   return Response.json(
     {

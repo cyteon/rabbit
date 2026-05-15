@@ -1,6 +1,4 @@
-import { createClerkClient } from "@clerk/backend";
-import { CLERK_SECRET_KEY } from "$env/static/private";
-import { PUBLIC_CLERK_PUBLISHABLE_KEY } from "$env/static/public";
+import clerk from "$lib/server/clerk.js";
 import { db } from "$lib/server/db/index";
 import {
   users as usersTable,
@@ -9,11 +7,6 @@ import {
   subrabbits as subrabbitsTable,
 } from "$lib/server/db/schema";
 import { and, desc, eq } from "drizzle-orm";
-
-const clerkClient = createClerkClient({
-  secretKey: CLERK_SECRET_KEY,
-  publishableKey: PUBLIC_CLERK_PUBLISHABLE_KEY,
-});
 
 export async function GET({ url, request }) {
   let slug = url.pathname.split("/")[3];
@@ -59,8 +52,10 @@ export async function GET({ url, request }) {
 }
 
 export async function POST({ url, request }) {
+  let session;
+
   try {
-    var session = await clerkClient.authenticateRequest(request);
+    session = await clerk.authenticateRequest(request);
 
     if (!session.isSignedIn) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
@@ -77,6 +72,8 @@ export async function POST({ url, request }) {
     );
   }
 
+  let clerk_id = session.toAuth().userId!;
+
   let body = await request.json();
 
   let id = Math.random().toString(36).substring(4);
@@ -84,13 +81,13 @@ export async function POST({ url, request }) {
   let foundUsers = await db
     .select()
     .from(usersTable)
-    .where(eq(usersTable.clerk_id, body.clerk_id));
+    .where(eq(usersTable.clerk_id, clerk_id));
   let user: any;
 
   if (foundUsers.length === 0) {
     user = await db
       .insert(usersTable)
-      .values({ clerk_id: body.clerk_id })
+      .values({ clerk_id: clerk_id })
       .returning();
   } else {
     user = foundUsers[0];
@@ -102,7 +99,7 @@ export async function POST({ url, request }) {
       id_rand: id,
       post: body.post,
       author: user.id,
-      author_clerk_id: body.clerk_id,
+      author_clerk_id: clerk_id,
       content: body.content,
     })
     .returning();

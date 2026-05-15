@@ -1,12 +1,8 @@
 import { createClerkClient } from "@clerk/backend";
-import { CLERK_SECRET_KEY } from "$env/static/private";
 import { db } from "$lib/server/db/index";
 import { users as usersTable } from "$lib/server/db/schema";
 import { eq } from "drizzle-orm";
-
-const clerkClient = createClerkClient({
-  secretKey: CLERK_SECRET_KEY,
-});
+import clerk from "$lib/server/clerk.js";
 
 export async function GET({ url, request, locals }) {
   let slug = url.pathname.split("/").pop()!;
@@ -16,7 +12,7 @@ export async function GET({ url, request, locals }) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    let user = await clerkClient.users.getUser(locals.session.userId);
+    let user = await clerk.users.getUser(locals.session.userId);
 
     let data = await db
       .select()
@@ -46,7 +42,7 @@ export async function GET({ url, request, locals }) {
     try {
       slug = slug.slice(3);
 
-      let user = await clerkClient.users.getUser(slug);
+      let user = await clerk.users.getUser(slug);
 
       if (user == null) {
         return Response.json({ message: "User not found" }, { status: 404 });
@@ -90,7 +86,7 @@ export async function GET({ url, request, locals }) {
     return Response.json({ message: "User not found" }, { status: 404 });
   }
 
-  let user = await clerkClient.users.getUser(data[0].clerk_id);
+  let user = await clerk.users.getUser(data[0].clerk_id);
 
   return Response.json(
     {
